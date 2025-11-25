@@ -1,23 +1,22 @@
 import * as vscode from 'vscode';
-import fs from "node:fs";
-import path from "node:path";
+import path from 'node:path';
 
-export async function uploadFile(uri: vscode.Uri) {
+/**
+ * 利用 VS Code TextDocument 接口读取文件内容并上传
+ */
+export async function uploadFile(uri: vscode.Uri | undefined) {
     try {
-        // 获取选中的文件路径
-        const filePath = uri.fsPath;
-
-        // 检查文件是否存在
-        if (!fs.existsSync(filePath)) {
-            vscode.window.showErrorMessage(`文件不存在: ${filePath}`);
+        if (!uri) {
+            vscode.window.showWarningMessage('请在资源管理器中选中文件后再上传。');
             return;
         }
 
-        // 获取文件信息
-        const fileName = path.basename(filePath);
-        const stats = fs.statSync(filePath);
+        const document = await vscode.workspace.openTextDocument(uri);
+        const fileName = path.basename(document.uri.fsPath);
 
-        // 显示上传进度
+        const encoder = new TextEncoder();
+        const buffer = encoder.encode(document.getText());
+
         await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: `正在上传文件: ${fileName}`,
@@ -25,18 +24,16 @@ export async function uploadFile(uri: vscode.Uri) {
         }, async (progress) => {
             progress.report({ increment: 0 });
 
-            // TODO: 在这里实现实际的上传逻辑
-            // 例如：上传到服务器、云存储等
+            // 在这里实现实际的上传逻辑，例如将 buffer 上传到服务器
 
-            // 模拟上传过程
+            // 模拟上传过程，使用 buffer.length 作为上传数据
             await new Promise(resolve => setTimeout(resolve, 1000));
-            progress.report({ increment: 50 });
+            progress.report({ increment: 50, message: `上传 ${buffer.length} bytes...` });
             await new Promise(resolve => setTimeout(resolve, 1000));
             progress.report({ increment: 100 });
         });
 
-        // 显示成功消息
-        vscode.window.showInformationMessage(`文件上传成功: ${fileName} (${(stats.size / 1024).toFixed(2)} KB)`);
+        vscode.window.showInformationMessage(`文件上传成功: ${fileName} (${(buffer.length / 1024).toFixed(2)} KB)`);
     } catch (error) {
         vscode.window.showErrorMessage(`上传文件时出错: ${error instanceof Error ? error.message : String(error)}`);
     }
