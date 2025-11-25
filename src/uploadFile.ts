@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
 import path from 'node:path';
+import GlobalStore from './globalStore';
 
 /**
  * 利用 VS Code TextDocument 接口读取文件内容并上传
  */
-export async function uploadFile(uri: vscode.Uri | undefined) {
+export async function uploadFile(globalStore: GlobalStore, uri: vscode.Uri | undefined) {
     try {
         if (!uri) {
-            vscode.window.showWarningMessage('请在资源管理器中选中文件后再上传。');
             return;
         }
 
