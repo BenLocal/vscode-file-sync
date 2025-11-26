@@ -8,7 +8,7 @@ export enum ServerType {
 export interface ServerConfig {
   name: string;
   type: ServerType;
-  matadata: Record<string, string>;
+  matadata: Record<string, string | null>;
 }
 
 export class ServerFactory {
@@ -61,6 +61,7 @@ export interface Server {
     context: vscode.ExtensionContext,
     serverConfig: ServerConfig,
     uri: vscode.Uri,
+    uploadPath: string,
     progress: vscode.Progress<{ message?: string; increment?: number }>,
     fileSize: number
   ): Promise<void>;

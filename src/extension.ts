@@ -3,16 +3,19 @@
 import * as vscode from "vscode";
 import { uploadFile } from "./uploadFile";
 import { addServerCommand } from "./serverEditor";
+import { UploadHistory } from "./history";
 
 let statusBarItem: vscode.StatusBarItem;
+let history: UploadHistory;
 
 export function activate(context: vscode.ExtensionContext) {
+  history = new UploadHistory(context);
   createStatusBarItem();
 
   const uploadFileCommand = vscode.commands.registerCommand(
     "vscode-file-sync.uploadFile",
     async (uri: vscode.Uri) => {
-      await uploadFile(context, uri);
+      await uploadFile(context, history, uri);
     }
   );
   context.subscriptions.push(uploadFileCommand);

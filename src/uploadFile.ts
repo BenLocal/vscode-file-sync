@@ -1,12 +1,14 @@
 import * as vscode from "vscode";
 import path from "node:path";
 import { ServerConfig, ServerFactory } from "./serverFactory";
+import { UploadHistory, UploadHistoryItem } from "./history";
 
 /**
  * 利用 VS Code TextDocument 接口读取文件内容并上传
  */
 export async function uploadFile(
   context: vscode.ExtensionContext,
+  history: UploadHistory,
   uri: vscode.Uri | undefined
 ) {
   try {
@@ -38,14 +40,23 @@ export async function uploadFile(
     if (!serverConfig) {
       return;
     }
-
     const server = ServerFactory.createServer(serverConfig.type);
     if (!server) {
       return;
     }
     const fileName = path.basename(uri.fsPath);
+    const his = await history.get(fileName);
+    const uploadPath = await pickUploadPath(his);
+    if (!uploadPath) {
+      return;
+    }
+    const normalizedPath = toLinuxPath(uploadPath);
+
+
     const stat = await vscode.workspace.fs.stat(uri);
     const start = Date.now();
+
+    await history.add(fileName, normalizedPath);
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
@@ -58,6 +69,7 @@ export async function uploadFile(
           context,
           serverConfig,
           uri,
+          normalizedPath,
           progress,
           stat.size
         );
@@ -71,9 +83,59 @@ export async function uploadFile(
     );
   } catch (error) {
     vscode.window.showErrorMessage(
-      `上传文件时出错: ${
-        error instanceof Error ? error.message : String(error)
+      `上传文件时出错: ${error instanceof Error ? error.message : String(error)
       }`
     );
   }
+}
+
+async function pickUploadPath(
+  historyItems: UploadHistoryItem[]
+): Promise<string | undefined> {
+  const quickPick = vscode.window.createQuickPick<
+    vscode.QuickPickItem & { value?: string }
+  >();
+
+  quickPick.items = historyItems.map((item) => ({
+    label: item.distPath,
+    description: new Date(item.time).toLocaleString(),
+    value: item.distPath,
+  }));
+  quickPick.placeholder = "选择历史路径或直接输入新的上传路径";
+  quickPick.ignoreFocusOut = true;
+  quickPick.matchOnDescription = true;
+  quickPick.value = historyItems[0]?.distPath ?? "";
+
+  return new Promise((resolve) => {
+    quickPick.onDidAccept(() => {
+      const selection = quickPick.selectedItems[0];
+      const value = selection?.value ?? quickPick.value.trim();
+      if (!value) {
+        vscode.window.showWarningMessage("请输入有效的上传路径");
+        return;
+      }
+      resolve(value);
+      quickPick.hide();
+    });
+
+    quickPick.onDidHide(() => {
+      resolve(undefined);
+      quickPick.dispose();
+    });
+
+    quickPick.show();
+  });
+}
+
+function toLinuxPath(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return "";
+  }
+
+  const segments = trimmed
+    .split(/[\\/]+/)
+    .filter((segment) => segment.length > 0);
+
+  return segments.join("/");
 }
