@@ -38,8 +38,8 @@ export class FileSyncUtils {
       progress.report({
         increment,
         message: done
-          ? `上传完成 (${fileName})`
-          : `上传中 (${percent.toFixed(0)}%)`,
+          ? `Upload completed (${fileName})`
+          : `Uploading (${percent.toFixed(0)}%)`,
       });
       lastPercent = percent;
     };

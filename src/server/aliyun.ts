@@ -45,14 +45,14 @@ export class AliyunServer implements Server {
     const uploadFile = path.posix.join(uploadPath, fileName);
     const result = await oss.putStream(uploadFile, stream);
 
-    progress.report({ message: `上传完成 (${fileName})` });
+    progress.report({ message: `Upload completed (${fileName})` });
 
     const url = (result as { url?: string })?.url;
     if (url) {
-      const copy = "复制链接";
-      const open = "打开链接";
+      const copy = "Copy Link";
+      const open = "Open Link";
       const action = await vscode.window.showInformationMessage(
-        `文件上传成功: ${fileName}\n${url}`,
+        `File uploaded successfully: ${fileName}\n${url}`,
         { modal: true },
         copy,
         open
@@ -60,7 +60,7 @@ export class AliyunServer implements Server {
 
       if (action === copy) {
         await vscode.env.clipboard.writeText(url);
-        vscode.window.showInformationMessage("链接已复制到剪贴板");
+        vscode.window.showInformationMessage("Link copied to clipboard.");
       } else if (action === open) {
         vscode.env.openExternal(vscode.Uri.parse(url));
       }
@@ -71,31 +71,31 @@ export class AliyunServer implements Server {
     _context: vscode.ExtensionContext
   ): Promise<ServerConfig | undefined> {
     const accessKeyId = await vscode.window.showInputBox({
-      placeHolder: "请输入阿里云AccessKeyID",
+      placeHolder: "Enter Aliyun AccessKey ID",
       ignoreFocusOut: true,
     });
     if (!accessKeyId) {
       return;
     }
     const accessKeySecret = await vscode.window.showInputBox({
-      placeHolder: "请输入阿里云AccessKeySecret",
+      placeHolder: "Enter Aliyun AccessKey Secret",
       ignoreFocusOut: true,
       password: true,
     });
     const bucket = await vscode.window.showInputBox({
-      placeHolder: "请输入阿里云Bucket",
+      placeHolder: "Enter Aliyun Bucket",
       ignoreFocusOut: true,
     });
     const region = await vscode.window.showInputBox({
-      placeHolder: "请输入阿里云Region",
+      placeHolder: "Enter Aliyun Region (e.g. oss-cn-shanghai)",
       ignoreFocusOut: true,
     });
     const name = await vscode.window.showInputBox({
-      placeHolder: "请输入名称",
+      placeHolder: "Enter a server name",
       ignoreFocusOut: true,
     });
     const endpoint: string | undefined = await vscode.window.showInputBox({
-      placeHolder: "请输入阿里云Endpoint",
+      placeHolder: "Enter Aliyun Endpoint (optional)",
       ignoreFocusOut: true,
     });
     if (!accessKeyId || !accessKeySecret || !bucket || !region || !name) {

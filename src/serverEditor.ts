@@ -8,7 +8,7 @@ export function addServerCommand(context: vscode.ExtensionContext) {
       const serverTypeOptions: vscode.QuickPickItem[] =
         ServerFactory.getServerList();
       const selected = await vscode.window.showQuickPick(serverTypeOptions, {
-        placeHolder: "请选择服务器类型",
+        placeHolder: "Select a server type",
         ignoreFocusOut: true,
       });
 
@@ -17,13 +17,12 @@ export function addServerCommand(context: vscode.ExtensionContext) {
       }
 
       const serverType = selected.detail as ServerType;
-      console.log(`选择的服务器类型: ${serverType}`);
       const server = ServerFactory.createServer(serverType);
       if (!server) {
         return;
       }
       const serverConfig = await server.createAddServerCommand(context);
-      if (!serverConfig || !serverConfig.name) {
+      if (!serverConfig?.name) {
         return;
       }
       context.globalState.update(
@@ -31,7 +30,7 @@ export function addServerCommand(context: vscode.ExtensionContext) {
         serverConfig
       );
       vscode.window.showInformationMessage(
-        `服务器${serverConfig.name}添加成功`
+        `Server ${serverConfig.name} added successfully.`
       );
     }
   );
@@ -45,7 +44,7 @@ export function addServerCommand(context: vscode.ExtensionContext) {
         .filter((key) => key.startsWith("file.sync.server."))) {
         context.globalState.update(key, undefined);
       }
-      vscode.window.showInformationMessage("服务器清除成功");
+      vscode.window.showInformationMessage("All servers have been cleared.");
     }
   );
   context.subscriptions.push(clearServerCommand);

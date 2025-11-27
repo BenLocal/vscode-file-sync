@@ -37,7 +37,7 @@ export class UploadHistory {
       });
     }
 
-    // 按时间排序（最新的在前），然后只保留最近的10个
+    // Sort by newest first and keep only the most recent 10 entries
     history.sort(
       (a, b) => b.time.getTime() - a.time.getTime()
     );

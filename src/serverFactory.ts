@@ -24,9 +24,9 @@ export class ServerFactory {
     [
       ServerType.Aliyun,
       {
-        name: "阿里云OSS",
+        name: "Aliyun OSS",
         icon: "cloud",
-        description: "使用阿里云对象存储服务",
+        description: "Upload files to Aliyun Object Storage Service",
         creater: () => new AliyunServer(),
       },
     ],
