@@ -1,78 +1,93 @@
 {
-    "name": "vscode-file-sync",
-    "displayName": "vscode-file-sync",
-    "description": "vscoe file sync",
-    "version": "0.0.1",
-    "engines": {
-        "vscode": "^1.103.0"
-    },
-    "categories": [
-        "Other"
+  "name": "vscode-file-sync",
+  "displayName": "vscode-file-sync",
+  "description": "vscoe file sync",
+  "publisher": "shiben",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.73.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "File",
+    "Upload"
+  ],
+  "bugs": {
+    "url": "https://github.com/BenLocal/vscode-file-sync/issues",
+    "email": "807629978@qq.com"
+  },
+  "homepage": "https://github.com/BenLocal/vscode-file-sync/blob/master/README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/BenLocal/vscode-file-sync.git"
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "vscode-file-sync.uploadFile",
+        "title": "File-Sync: Upload File To Server"
+      },
+      {
+        "command": "vscode-file-sync.addServer",
+        "title": "File-Sync: Add Server"
+      },
+      {
+        "command": "vscode-file-sync.deleteServer",
+        "title": "File-Sync: Delete Server"
+      },
+      {
+        "command": "vscode-file-sync.editServer",
+        "title": "File-Sync: Edit Server"
+      },
+      {
+        "command": "vscode-file-sync.clearServer",
+        "title": "File-Sync: Clear Server"
+      }
     ],
-    "activationEvents": [
-        "onStartupFinished"
-    ],
-    "main": "./dist/extension.js",
-    "contributes": {
-        "commands": [
-            {
-                "command": "vscode-file-sync.uploadFile",
-                "title": "File-Sync: Upload File To Server"
-            },
-            {
-                "command": "vscode-file-sync.addServer",
-                "title": "File-Sync: Add Server"
-            },
-            {
-                "command": "vscode-file-sync.deleteServer",
-                "title": "File-Sync: Delete Server"
-            },
-            {
-                "command": "vscode-file-sync.editServer",
-                "title": "File-Sync: Edit Server"
-            },
-            {
-                "command": "vscode-file-sync.clearServer",
-                "title": "File-Sync: Clear Server"
-            }
-        ],
-        "menus": {
-            "explorer/context": [
-                {
-                    "command": "vscode-file-sync.uploadFile",
-                    "group": "navigation@1",
-                    "text": "Upload File To Server"
-                }
-            ]
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "vscode-file-sync.uploadFile",
+          "group": "navigation@1",
+          "text": "Upload File To Server"
         }
-    },
-    "scripts": {
-        "vscode:prepublish": "npm run package",
-        "compile": "webpack",
-        "watch": "webpack --watch",
-        "package": "webpack --mode production --devtool hidden-source-map",
-        "compile-tests": "tsc -p . --outDir out",
-        "watch-tests": "tsc -p . -w --outDir out",
-        "pretest": "npm run compile-tests && npm run compile && npm run lint",
-        "lint": "eslint src",
-        "test": "vscode-test"
-    },
-    "devDependencies": {
-        "@types/ali-oss": "^6.16.13",
-        "@types/mocha": "^10.0.10",
-        "@types/node": "22.x",
-        "@types/vscode": "^1.103.0",
-        "@vscode/test-cli": "^0.0.12",
-        "@vscode/test-electron": "^2.5.2",
-        "eslint": "^9.39.1",
-        "ts-loader": "^9.5.4",
-        "typescript": "^5.9.3",
-        "typescript-eslint": "^8.46.3",
-        "webpack": "^5.102.1",
-        "webpack-cli": "^6.0.1"
-    },
-    "dependencies": {
-        "ali-oss": "^6.23.0",
-        "proxy-agent": "^5.0.0"
+      ]
     }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test",
+    "vsix": "npm install -g vsce && vsce package"
+  },
+  "devDependencies": {
+    "@types/ali-oss": "^6.16.13",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "@types/vscode": "^1.73.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "eslint": "^9.39.1",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.3",
+    "webpack": "^5.102.1",
+    "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "ali-oss": "^6.23.0",
+    "proxy-agent": "^5.0.0"
+  }
 }

@@ -1,71 +1,68 @@
-# vscode-file-sync README
+# VS Code File Sync
 
-This is the README for your extension "vscode-file-sync". After writing up a brief description, we recommend including the following sections.
+VS Code File Sync lets you push any local file to a remote Object Storage Service directly from the Explorer context menu. The first release targets Aliyun OSS and guides you through storing credentials, choosing upload paths, streaming file contents, and copying the resulting public URL.
 
-## Features
+## Key Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
-
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+- **One-click uploads** – right-click a file and choose `File-Sync: Upload File To Server`.
+- **Server profiles** – securely store multiple Aliyun OSS credentials in VS Code `globalState`.
+- **Smart destination picker** – choose from the last 10 destinations per file or type a new Linux-style path.
+- **Progress reporting** – uploads stream data and track progress via VS Code notifications.
+- **Result dialog** – once OSS returns a URL, a modal dialog shows it with actions to copy or open.
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- Visual Studio Code `1.73+`
+- Aliyun OSS account with a bucket in the desired region
+- Network access to the chosen OSS endpoint
 
-## Extension Settings
+## Getting Started
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+1. Install this extension from VSIX or the Marketplace (when available).
+2. Open the Command Palette (`Ctrl/Cmd+Shift+P`) and run **`File-Sync: Add Server`**.
+3. Select *Aliyun OSS* and enter:
+   - AccessKey ID & AccessKey Secret
+   - Bucket name
+   - Region (e.g. `oss-cn-shanghai`)
+   - Optional custom endpoint
+   - Friendly server name
+4. In the Explorer, right-click a file and choose **Upload File To Server**.
+5. Pick the server profile, pick or type the remote path, and watch the upload progress notification.
+6. Copy or open the URL from the completion dialog.
 
-For example:
+## Commands
 
-This extension contributes the following settings:
+| Command | Description |
+| --- | --- |
+| `File-Sync: Upload File To Server` | Upload the selected file. Also exposed via the Explorer context menu. |
+| `File-Sync: Add Server` | Register a new server profile (currently Aliyun OSS). |
+| `File-Sync: Edit Server` | Placeholder for editing existing profiles. |
+| `File-Sync: Delete Server` | Placeholder for removing a single profile. |
+| `File-Sync: Clear Server` | Remove all saved profiles. |
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+## Upload Workflow
 
-## Known Issues
+1. **Server selection** – keys under `file.sync.server.*` are discovered and shown in a QuickPick.
+2. **Destination input** – a custom QuickPick lists the latest 10 destinations for the file while still accepting manual input. Paths are normalized to Linux separators before uploading.
+3. **Streaming & progress** – `FileSyncUtils` converts the VS Code document into a stream, tracks bytes, and reports incremental progress.
+4. **OSS upload** – the Aliyun client performs `oss.putStream`, then returns the public URL.
+5. **Result dialog** – the URL is displayed in a modal dialog with “Copy Link” and “Open Link” actions.
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## Development
 
-## Release Notes
+```bash
+npm install
+npm run watch   # incremental builds
+# or
+npm run compile # single webpack build
+```
 
-Users appreciate release notes as you update your extension.
+Press `F5` to launch an Extension Development Host. Tests can be added later via `npm test`.
 
-### 1.0.0
+## Roadmap & Contributions
 
-Initial release of ...
+- Additional providers (AWS S3, Azure Blob, SFTP, etc.)
+- Editing/removing server profiles
+- Workspace-level default destinations and per-project overrides
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Bugs and feature requests are tracked in [GitHub Issues](https://github.com/BenLocal/vscode-file-sync/issues). Contributions are welcome! Feel free to open a pull request or contact the maintainer via the email listed in `package.json`.
