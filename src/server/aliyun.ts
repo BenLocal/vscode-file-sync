@@ -2,8 +2,6 @@ import * as vscode from "vscode";
 import { Server, ServerConfig } from "../serverFactory";
 import path from "node:path";
 import OSS from "ali-oss";
-import { FileSyncUtils } from "../utils";
-import { Readable } from "node:stream";
 import { ProgressFileStream } from "../fileStream";
 
 const matadataKeys = {

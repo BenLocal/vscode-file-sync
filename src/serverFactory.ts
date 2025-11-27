@@ -3,10 +3,12 @@ import { AliyunServer } from "./server/aliyun";
 import { Readable } from "node:stream";
 import { SftpServer } from "./server/sftp";
 import { ProgressFileStream } from "./fileStream";
+import { COSServer } from "./server/cos";
 
 export enum ServerType {
   Aliyun = "aliyun",
   Sftp = "sftp",
+  COS = "cos",
 }
 
 export interface ServerConfig {
@@ -22,7 +24,7 @@ export class ServerFactory {
       name: string;
       icon: string;
       description: string;
-      creater: () => Server;
+      s: Server;
     }
   > = new Map([
     [
@@ -31,7 +33,7 @@ export class ServerFactory {
         name: "Aliyun OSS",
         icon: "cloud",
         description: "Upload files to Aliyun Object Storage Service",
-        creater: () => new AliyunServer(),
+        s: new AliyunServer(),
       },
     ],
     [
@@ -40,7 +42,16 @@ export class ServerFactory {
         name: "SFTP",
         icon: "cloud",
         description: "Upload files to SFTP server",
-        creater: () => new SftpServer(),
+        s: new SftpServer(),
+      },
+    ],
+    [
+      ServerType.COS,
+      {
+        name: "COS",
+        icon: "cloud",
+        description: "Upload files to COS(Tencent Cloud Object Storage)",
+        s: new COSServer(),
       },
     ],
   ]);
@@ -61,7 +72,7 @@ export class ServerFactory {
     if (!config) {
       return undefined;
     }
-    return config.creater();
+    return config.s;
   }
 
   static getServerList(context: vscode.ExtensionContext): string[] {

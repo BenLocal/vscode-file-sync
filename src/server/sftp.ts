@@ -2,7 +2,6 @@ import * as vscode from "vscode";
 import { Server, ServerConfig } from "../serverFactory";
 import Client from "ssh2-sftp-client";
 import path from "node:path";
-import { Readable } from "node:stream";
 import { ProgressFileStream } from "../fileStream";
 
 const matadataKeys = {

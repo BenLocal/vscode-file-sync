@@ -73,14 +73,14 @@
     "vsix": "npx @vscode/vsce package"
   },
   "devDependencies": {
-    "@vscode/vsce": "^3.0.0",
-    "@types/ssh2-sftp-client": "^9.0.5",
     "@types/ali-oss": "^6.16.13",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
+    "@types/ssh2-sftp-client": "^9.0.5",
     "@types/vscode": "^1.73.0",
     "@vscode/test-cli": "^0.0.12",
     "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.0.0",
     "eslint": "^9.39.1",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
@@ -90,6 +90,7 @@
   },
   "dependencies": {
     "ali-oss": "^6.23.0",
+    "cos-nodejs-sdk-v5": "^2.15.4",
     "proxy-agent": "^5.0.0",
     "ssh2-sftp-client": "^10.0.3"
   }

@@ -13,14 +13,18 @@ VS Code File Sync lets you push any local file to a remote Object Storage Servic
 ## Requirements
 
 - Visual Studio Code `1.73+`
-- Aliyun OSS account with a bucket in the desired region
-- Network access to the chosen OSS endpoint
+
+## Supported Servers
+
+- Aliyun OSS
+- SFTP
+- COS(Tencent Cloud Object Storage)
 
 ## Getting Started
 
 1. Install this extension from VSIX or the Marketplace (when available).
 2. Open the Command Palette (`Ctrl/Cmd+Shift+P`) and run **`File-Sync: Add Server`**.
-3. Select *Aliyun OSS* and enter:
+3. Select _Aliyun OSS_ and enter:
    - AccessKey ID & AccessKey Secret
    - Bucket name
    - Region (e.g. `oss-cn-shanghai`)
@@ -32,13 +36,13 @@ VS Code File Sync lets you push any local file to a remote Object Storage Servic
 
 ## Commands
 
-| Command | Description |
-| --- | --- |
+| Command                            | Description                                                           |
+| ---------------------------------- | --------------------------------------------------------------------- |
 | `File-Sync: Upload File To Server` | Upload the selected file. Also exposed via the Explorer context menu. |
-| `File-Sync: Add Server` | Register a new server profile (currently Aliyun OSS). |
-| `File-Sync: Edit Server` | Placeholder for editing existing profiles. |
-| `File-Sync: Delete Server` | Placeholder for removing a single profile. |
-| `File-Sync: Clear Server` | Remove all saved profiles. |
+| `File-Sync: Add Server`            | Register a new server profile (currently Aliyun OSS).                 |
+| `File-Sync: Edit Server`           | Placeholder for editing existing profiles.                            |
+| `File-Sync: Delete Server`         | Placeholder for removing a single profile.                            |
+| `File-Sync: Clear Server`          | Remove all saved profiles.                                            |
 
 ## Upload Workflow
 
