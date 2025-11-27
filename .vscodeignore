@@ -2,6 +2,9 @@
 .vscode-test/**
 out/**
 node_modules/**
+!node_modules/ssh2/**
+!node_modules/ssh2-sftp-client/**
+!node_modules/cpu-features/**
 src/**
 .gitignore
 .yarnrc

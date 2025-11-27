@@ -2,7 +2,7 @@
 
 "use strict";
 
-const path = require("path");
+const path = require("node:path");
 
 //@ts-check
 /** @typedef {import('webpack').Configuration} WebpackConfig **/
@@ -22,6 +22,9 @@ const extensionConfig = {
   externals: {
     vscode: "commonjs vscode", // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
     // modules added here also need to be added in the .vscodeignore file
+    ssh2: "commonjs ssh2",
+    "ssh2-sftp-client": "commonjs ssh2-sftp-client",
+    "cpu-features": "commonjs cpu-features",
   },
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader

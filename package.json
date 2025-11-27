@@ -70,9 +70,10 @@
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src",
     "test": "vscode-test",
-    "vsix": "npm install -g vsce && vsce package"
+    "vsix": "npx @vscode/vsce package"
   },
   "devDependencies": {
+    "@vscode/vsce": "^3.0.0",
     "@types/ssh2-sftp-client": "^9.0.5",
     "@types/ali-oss": "^6.16.13",
     "@types/mocha": "^10.0.10",
