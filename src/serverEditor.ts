@@ -6,7 +6,7 @@ export function addServerCommand(context: vscode.ExtensionContext) {
     "vscode-file-sync.addServer",
     async () => {
       const serverTypeOptions: vscode.QuickPickItem[] =
-        ServerFactory.getServerList();
+        ServerFactory.getServerTypeList();
       const selected = await vscode.window.showQuickPick(serverTypeOptions, {
         placeHolder: "Select a server type",
         ignoreFocusOut: true,
@@ -21,16 +21,27 @@ export function addServerCommand(context: vscode.ExtensionContext) {
       if (!server) {
         return;
       }
-      const serverConfig = await server.createAddServerCommand(context);
-      if (!serverConfig?.name) {
+
+      const name = await vscode.window.showInputBox({
+        placeHolder: "Enter a server name",
+        ignoreFocusOut: true,
+      });
+      if (!name) {
         return;
       }
-      context.globalState.update(
-        `file.sync.server.${serverConfig.name}`,
-        serverConfig
-      );
+      const matadata = await server.openEditServerConfigUICommand(context, undefined);
+      if (!matadata) {
+        return;
+      }
+
+      const serverConfig = {
+        name: name,
+        type: serverType,
+        matadata: matadata,
+      };
+      ServerFactory.updateServerConfig(context, serverConfig);
       vscode.window.showInformationMessage(
-        `Server ${serverConfig.name} added successfully.`
+        `Server ${name} added successfully.`
       );
     }
   );
@@ -48,4 +59,45 @@ export function addServerCommand(context: vscode.ExtensionContext) {
     }
   );
   context.subscriptions.push(clearServerCommand);
+
+  const editServerCommand = vscode.commands.registerCommand(
+    "vscode-file-sync.editServer",
+    async () => {
+      const serverOptions = ServerFactory.getServerList(context).map((name) => ({
+        label: name,
+        detail: name,
+      }));
+      const selected = await vscode.window.showQuickPick(serverOptions, {
+        placeHolder: "Select a server to edit",
+        ignoreFocusOut: true,
+      });
+      if (!selected) {
+        return;
+      }
+      const serverName = selected.detail;
+      const old = ServerFactory.getServerConfig(context, serverName);
+      const serverType = old?.type;
+      if (!serverType) {
+        return;
+      }
+      const server = ServerFactory.createServer(serverType);
+      if (!server) {
+        return;
+      }
+      const matadata = await server.openEditServerConfigUICommand(context, old?.matadata ?? undefined);
+      if (!matadata) {
+        return;
+      }
+      const serverConfig = {
+        name: serverName,
+        type: serverType,
+        matadata: matadata,
+      };
+      ServerFactory.updateServerConfig(context, serverConfig);
+      vscode.window.showInformationMessage(
+        `Server ${serverName} edited successfully.`
+      );
+    }
+  );
+  context.subscriptions.push(editServerCommand);
 }

@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { Server, ServerConfig, ServerType } from "../serverFactory";
+import { Server, ServerConfig } from "../serverFactory";
 import path from "node:path";
 import OSS from "ali-oss";
 import { FileSyncUtils } from "../utils";
@@ -14,7 +14,7 @@ const matadataKeys = {
 
 export class AliyunServer implements Server {
   async uploadFile(
-    context: vscode.ExtensionContext,
+    _context: vscode.ExtensionContext,
     serverConfig: ServerConfig,
     uri: vscode.Uri,
     uploadPath: string,
@@ -67,12 +67,14 @@ export class AliyunServer implements Server {
     }
   }
 
-  async createAddServerCommand(
-    _context: vscode.ExtensionContext
-  ): Promise<ServerConfig | undefined> {
+  async openEditServerConfigUICommand(
+    _context: vscode.ExtensionContext,
+    old_matadata: Record<string, string | null> | undefined
+  ): Promise<Record<string, string | null> | undefined> {
     const accessKeyId = await vscode.window.showInputBox({
       placeHolder: "Enter Aliyun AccessKey ID",
       ignoreFocusOut: true,
+      value: old_matadata?.[matadataKeys.accessKeyId] ?? undefined,
     });
     if (!accessKeyId) {
       return;
@@ -81,36 +83,32 @@ export class AliyunServer implements Server {
       placeHolder: "Enter Aliyun AccessKey Secret",
       ignoreFocusOut: true,
       password: true,
+      value: old_matadata?.[matadataKeys.accessKeySecret] ?? undefined,
     });
     const bucket = await vscode.window.showInputBox({
       placeHolder: "Enter Aliyun Bucket",
       ignoreFocusOut: true,
+      value: old_matadata?.[matadataKeys.bucket] ?? undefined,
     });
     const region = await vscode.window.showInputBox({
       placeHolder: "Enter Aliyun Region (e.g. oss-cn-shanghai)",
       ignoreFocusOut: true,
-    });
-    const name = await vscode.window.showInputBox({
-      placeHolder: "Enter a server name",
-      ignoreFocusOut: true,
+      value: old_matadata?.[matadataKeys.region] ?? undefined,
     });
     const endpoint: string | undefined = await vscode.window.showInputBox({
       placeHolder: "Enter Aliyun Endpoint (optional)",
       ignoreFocusOut: true,
+      value: old_matadata?.[matadataKeys.endpoint] ?? undefined,
     });
-    if (!accessKeyId || !accessKeySecret || !bucket || !region || !name) {
+    if (!accessKeyId || !accessKeySecret || !bucket || !region) {
       return;
     }
     return {
-      name: name,
-      type: ServerType.Aliyun,
-      matadata: {
-        [matadataKeys.accessKeyId]: accessKeyId,
-        [matadataKeys.accessKeySecret]: accessKeySecret,
-        [matadataKeys.endpoint]: endpoint ?? null,
-        [matadataKeys.bucket]: bucket,
-        [matadataKeys.region]: region,
-      },
+      [matadataKeys.accessKeyId]: accessKeyId,
+      [matadataKeys.accessKeySecret]: accessKeySecret,
+      [matadataKeys.endpoint]: endpoint ?? null,
+      [matadataKeys.bucket]: bucket,
+      [matadataKeys.region]: region,
     };
   }
 
