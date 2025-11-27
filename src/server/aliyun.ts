@@ -4,6 +4,7 @@ import path from "node:path";
 import OSS from "ali-oss";
 import { FileSyncUtils } from "../utils";
 import { Readable } from "node:stream";
+import { ProgressFileStream } from "../fileStream";
 
 const matadataKeys = {
   accessKeyId: "accessKeyId",
@@ -18,7 +19,7 @@ export class AliyunServer implements Server {
     _context: vscode.ExtensionContext,
     serverConfig: ServerConfig,
     uploadFile: string,
-    getFileStream: () => Promise<Readable>,
+    file: ProgressFileStream
   ): Promise<void> {
     const accessKeyId = serverConfig.matadata[matadataKeys.accessKeyId];
     const accessKeySecret = serverConfig.matadata[matadataKeys.accessKeySecret];
@@ -38,8 +39,7 @@ export class AliyunServer implements Server {
     }
     const oss = new OSS(options);
 
-    const result = await oss.putStream(uploadFile, await getFileStream());
-
+    const result = await oss.putStream(uploadFile, await file.getStream());
 
     const url = (result as { url?: string })?.url;
     const uploadFileName = path.basename(uploadFile);
@@ -106,5 +106,4 @@ export class AliyunServer implements Server {
       [matadataKeys.region]: region,
     };
   }
-
 }

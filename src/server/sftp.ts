@@ -1,9 +1,9 @@
 import * as vscode from "vscode";
 import { Server, ServerConfig } from "../serverFactory";
 import Client from "ssh2-sftp-client";
-import { FileSyncUtils } from "../utils";
 import path from "node:path";
 import { Readable } from "node:stream";
+import { ProgressFileStream } from "../fileStream";
 
 const matadataKeys = {
   host: "host",
@@ -15,10 +15,11 @@ const matadataKeys = {
   remotePath: "remotePath",
 };
 
-
 export class SftpServer implements Server {
-
-  async openEditServerConfigUICommand(context: vscode.ExtensionContext, old_matadata: Record<string, string | null> | undefined): Promise<Record<string, string | null> | undefined> {
+  async openEditServerConfigUICommand(
+    context: vscode.ExtensionContext,
+    old_matadata: Record<string, string | null> | undefined
+  ): Promise<Record<string, string | null> | undefined> {
     const host = await vscode.window.showInputBox({
       placeHolder: "Enter the host",
       ignoreFocusOut: true,
@@ -66,11 +67,12 @@ export class SftpServer implements Server {
     };
   }
 
-
-  async uploadFile(context: vscode.ExtensionContext,
+  async uploadFile(
+    context: vscode.ExtensionContext,
     serverConfig: ServerConfig,
     uploadFile: string,
-    getFileStream: () => Promise<Readable>): Promise<void> {
+    file: ProgressFileStream
+  ): Promise<void> {
     const host = serverConfig.matadata[matadataKeys.host] ?? undefined;
     const port = Number(serverConfig.matadata[matadataKeys.port]);
     const username = serverConfig.matadata[matadataKeys.username] ?? "root";
@@ -92,9 +94,11 @@ export class SftpServer implements Server {
         await client.mkdir(parentDir, true);
       }
 
-      const result = await client.put(await getFileStream(), uploadFile);
+      const result = await client.put(await file.getStream(), uploadFile);
       if (result) {
-        vscode.window.showInformationMessage(`File ${uploadFile} uploaded successfully`);
+        vscode.window.showInformationMessage(
+          `File ${uploadFile} uploaded successfully`
+        );
       } else {
         throw new Error("Failed to upload file");
       }

@@ -3,7 +3,8 @@ import path from "node:path";
 import { ServerFactory } from "./serverFactory";
 import { UploadHistory, UploadHistoryItem } from "./history";
 import { FileSyncUtils } from "./utils";
-import { PassThrough, Readable } from "node:stream";
+import { PassThrough } from "node:stream";
+import { ProgressFileStream } from "./fileStream";
 
 export async function uploadFile(
   context: vscode.ExtensionContext,
@@ -26,7 +27,10 @@ export async function uploadFile(
     if (!selected) {
       return;
     }
-    const serverConfig = ServerFactory.getServerConfig(context, selected.detail);
+    const serverConfig = ServerFactory.getServerConfig(
+      context,
+      selected.detail
+    );
     if (!serverConfig) {
       return;
     }
@@ -41,7 +45,6 @@ export async function uploadFile(
       return;
     }
     const normalizedPath = toLinuxPath(uploadPath);
-
 
     const stat = await vscode.workspace.fs.stat(uri);
     const fileSize = stat.size;
@@ -58,21 +61,23 @@ export async function uploadFile(
         progress.report({ message: "Preparing upload..." });
         try {
           const uploadFilePath = path.posix.join(uploadPath, fileName);
+          const progressFileStream = new ProgressFileStream(
+            uri,
+            progress,
+            fileSize
+          );
           await server.uploadFile(
             context,
             serverConfig,
             uploadFilePath,
-            async () => {
-              const stream = await FileSyncUtils.getReadableStream(uri);
-              const tracked = new PassThrough();
-              FileSyncUtils.attachProgress(tracked, progress, fileSize, fileName);
-              stream.pipe(tracked);
-              return tracked;
-            },
+            progressFileStream
           );
         } catch (error) {
-          const errorMesssage = error instanceof Error ? error.message : String(error);
-          progress.report({ message: `Upload failed (${fileName}): ${errorMesssage}` });
+          const errorMesssage =
+            error instanceof Error ? error.message : String(error);
+          progress.report({
+            message: `Upload failed (${fileName}): ${errorMesssage}`,
+          });
           throw error;
         }
         progress.report({ message: `Upload completed (${fileName})` });
@@ -86,7 +91,8 @@ export async function uploadFile(
     );
   } catch (error) {
     vscode.window.showErrorMessage(
-      `Failed to upload file: ${error instanceof Error ? error.message : String(error)
+      `Failed to upload file: ${
+        error instanceof Error ? error.message : String(error)
       }`
     );
   }

@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { AliyunServer } from "./server/aliyun";
 import { Readable } from "node:stream";
 import { SftpServer } from "./server/sftp";
+import { ProgressFileStream } from "./fileStream";
 
 export enum ServerType {
   Aliyun = "aliyun",
@@ -77,17 +78,21 @@ export class ServerFactory {
     return serverOptions.sort((a, b) => a.localeCompare(b));
   }
 
-  static getServerConfig(context: vscode.ExtensionContext, name: string): ServerConfig | undefined {
+  static getServerConfig(
+    context: vscode.ExtensionContext,
+    name: string
+  ): ServerConfig | undefined {
     if (!name) {
       return undefined;
     }
 
-    return context.globalState.get<ServerConfig>(
-      `file.sync.server.${name}`
-    );
+    return context.globalState.get<ServerConfig>(`file.sync.server.${name}`);
   }
 
-  static updateServerConfig(context: vscode.ExtensionContext, serverConfig: ServerConfig | undefined) {
+  static updateServerConfig(
+    context: vscode.ExtensionContext,
+    serverConfig: ServerConfig | undefined
+  ) {
     if (!serverConfig) {
       return;
     }
@@ -116,6 +121,6 @@ export interface Server {
     context: vscode.ExtensionContext,
     serverConfig: ServerConfig,
     uploadFile: string,
-    getFileStream: () => Promise<Readable>,
+    file: ProgressFileStream
   ): Promise<void>;
 }
