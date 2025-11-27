@@ -1,7 +1,9 @@
 import * as vscode from "vscode";
 import path from "node:path";
-import { ServerConfig, ServerFactory } from "./serverFactory";
+import { ServerFactory } from "./serverFactory";
 import { UploadHistory, UploadHistoryItem } from "./history";
+import { FileSyncUtils } from "./utils";
+import { PassThrough, Readable } from "node:stream";
 
 export async function uploadFile(
   context: vscode.ExtensionContext,
@@ -42,6 +44,7 @@ export async function uploadFile(
 
 
     const stat = await vscode.workspace.fs.stat(uri);
+    const fileSize = stat.size;
     const start = Date.now();
 
     await history.add(fileName, normalizedPath);
@@ -53,14 +56,26 @@ export async function uploadFile(
       },
       async (progress) => {
         progress.report({ message: "Preparing upload..." });
-        await server.uploadFile(
-          context,
-          serverConfig,
-          uri,
-          normalizedPath,
-          progress,
-          stat.size
-        );
+        try {
+          const uploadFilePath = path.posix.join(uploadPath, fileName);
+          await server.uploadFile(
+            context,
+            serverConfig,
+            uploadFilePath,
+            async () => {
+              const stream = await FileSyncUtils.getReadableStream(uri);
+              const tracked = new PassThrough();
+              FileSyncUtils.attachProgress(tracked, progress, fileSize, fileName);
+              stream.pipe(tracked);
+              return tracked;
+            },
+          );
+        } catch (error) {
+          const errorMesssage = error instanceof Error ? error.message : String(error);
+          progress.report({ message: `Upload failed (${fileName}): ${errorMesssage}` });
+          throw error;
+        }
+        progress.report({ message: `Upload completed (${fileName})` });
       }
     );
     const durationSec = ((Date.now() - start) / 1000).toFixed(2);
@@ -126,5 +141,9 @@ function toLinuxPath(value: string): string {
     .split(/[\\/]+/)
     .filter((segment) => segment.length > 0);
 
-  return segments.join("/");
+  if (segments.length === 0) {
+    return "";
+  }
+
+  return `/${segments.join("/")}`;
 }

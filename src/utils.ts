@@ -52,5 +52,8 @@ export class FileSyncUtils {
     stream.on("end", () => {
       report(true);
     });
+    stream.on("error", (error) => {
+      progress.report({ message: `Upload failed (${fileName}): ${error instanceof Error ? error.message : String(error)}` });
+    });
   }
 }

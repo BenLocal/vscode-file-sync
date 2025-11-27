@@ -73,6 +73,7 @@
     "vsix": "npm install -g vsce && vsce package"
   },
   "devDependencies": {
+    "@types/ssh2-sftp-client": "^9.0.5",
     "@types/ali-oss": "^6.16.13",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
@@ -88,6 +89,7 @@
   },
   "dependencies": {
     "ali-oss": "^6.23.0",
-    "proxy-agent": "^5.0.0"
+    "proxy-agent": "^5.0.0",
+    "ssh2-sftp-client": "^10.0.3"
   }
 }

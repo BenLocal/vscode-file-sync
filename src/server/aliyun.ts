@@ -3,6 +3,7 @@ import { Server, ServerConfig } from "../serverFactory";
 import path from "node:path";
 import OSS from "ali-oss";
 import { FileSyncUtils } from "../utils";
+import { Readable } from "node:stream";
 
 const matadataKeys = {
   accessKeyId: "accessKeyId",
@@ -16,15 +17,9 @@ export class AliyunServer implements Server {
   async uploadFile(
     _context: vscode.ExtensionContext,
     serverConfig: ServerConfig,
-    uri: vscode.Uri,
-    uploadPath: string,
-    progress: vscode.Progress<{ message?: string; increment?: number }>,
-    fileSize: number
+    uploadFile: string,
+    getFileStream: () => Promise<Readable>,
   ): Promise<void> {
-    const fileName = path.basename(uri.fsPath);
-    const stream = await FileSyncUtils.getReadableStream(uri);
-    FileSyncUtils.attachProgress(stream, progress, fileSize, fileName);
-
     const accessKeyId = serverConfig.matadata[matadataKeys.accessKeyId];
     const accessKeySecret = serverConfig.matadata[matadataKeys.accessKeySecret];
     const endpoint = serverConfig.matadata[matadataKeys.endpoint];
@@ -42,17 +37,17 @@ export class AliyunServer implements Server {
       options.endpoint = endpoint;
     }
     const oss = new OSS(options);
-    const uploadFile = path.posix.join(uploadPath, fileName);
-    const result = await oss.putStream(uploadFile, stream);
 
-    progress.report({ message: `Upload completed (${fileName})` });
+    const result = await oss.putStream(uploadFile, await getFileStream());
+
 
     const url = (result as { url?: string })?.url;
+    const uploadFileName = path.basename(uploadFile);
     if (url) {
       const copy = "Copy Link";
       const open = "Open Link";
       const action = await vscode.window.showInformationMessage(
-        `File uploaded successfully: ${fileName}\n${url}`,
+        `File ${uploadFileName} uploaded successfully: ${url}`,
         { modal: true },
         copy,
         open

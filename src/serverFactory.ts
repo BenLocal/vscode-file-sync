@@ -1,8 +1,11 @@
 import * as vscode from "vscode";
 import { AliyunServer } from "./server/aliyun";
+import { Readable } from "node:stream";
+import { SftpServer } from "./server/sftp";
 
 export enum ServerType {
   Aliyun = "aliyun",
+  Sftp = "sftp",
 }
 
 export interface ServerConfig {
@@ -28,6 +31,15 @@ export class ServerFactory {
         icon: "cloud",
         description: "Upload files to Aliyun Object Storage Service",
         creater: () => new AliyunServer(),
+      },
+    ],
+    [
+      ServerType.Sftp,
+      {
+        name: "SFTP",
+        icon: "cloud",
+        description: "Upload files to SFTP server",
+        creater: () => new SftpServer(),
       },
     ],
   ]);
@@ -103,9 +115,7 @@ export interface Server {
   uploadFile(
     context: vscode.ExtensionContext,
     serverConfig: ServerConfig,
-    uri: vscode.Uri,
-    uploadPath: string,
-    progress: vscode.Progress<{ message?: string; increment?: number }>,
-    fileSize: number
+    uploadFile: string,
+    getFileStream: () => Promise<Readable>,
   ): Promise<void>;
 }
