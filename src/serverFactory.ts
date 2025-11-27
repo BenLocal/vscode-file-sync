@@ -85,6 +85,13 @@ export class ServerFactory {
     }
     context.globalState.update(`file.sync.server.${name}`, serverConfig);
   }
+
+  static deleteServerConfig(context: vscode.ExtensionContext, name: string) {
+    if (!name) {
+      return;
+    }
+    context.globalState.update(`file.sync.server.${name}`, undefined);
+  }
 }
 
 export interface Server {

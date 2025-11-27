@@ -100,4 +100,26 @@ export function addServerCommand(context: vscode.ExtensionContext) {
     }
   );
   context.subscriptions.push(editServerCommand);
+
+  const deleteServerCommand = vscode.commands.registerCommand(
+    "vscode-file-sync.deleteServer",
+    async () => {
+      const serverOptions = ServerFactory.getServerList(context).map((name) => ({
+        label: name,
+        detail: name,
+      }));
+      const selected = await vscode.window.showQuickPick(serverOptions, {
+        placeHolder: "Select a server to delete",
+        ignoreFocusOut: true,
+      });
+      if (!selected) {
+        return;
+      }
+      ServerFactory.deleteServerConfig(context, selected.detail);
+      vscode.window.showInformationMessage(
+        `Server ${selected.detail} deleted successfully.`
+      );
+    }
+  );
+  context.subscriptions.push(deleteServerCommand);
 }
