@@ -1,8 +1,5 @@
 import * as vscode from "vscode";
-import { AliyunServer } from "./server/aliyun";
-import { SftpServer } from "./server/sftp";
 import { ProgressFileStream } from "./fileStream";
-import { COSServer } from "./server/cos";
 
 export enum ServerType {
   Aliyun = "aliyun",
@@ -17,13 +14,17 @@ export interface ServerConfig {
 }
 
 export class ServerFactory {
+  // Singleton instances cache
+  private static readonly _serverInstances = new Map<ServerType, Server>();
+
+  // Server type metadata (without instances)
   static readonly _serverTypeList: Map<
     ServerType,
     {
       name: string;
       icon: string;
       description: string;
-      s: Server;
+      factory: () => Server;
     }
   > = new Map([
     [
@@ -32,7 +33,11 @@ export class ServerFactory {
         name: "Aliyun OSS",
         icon: "cloud",
         description: "Upload files to Aliyun Object Storage Service",
-        s: new AliyunServer(),
+        factory: () => {
+          // Lazy load AliyunServer
+          const { AliyunServer } = require("./server/aliyun");
+          return new AliyunServer();
+        },
       },
     ],
     [
@@ -41,7 +46,11 @@ export class ServerFactory {
         name: "SFTP",
         icon: "cloud",
         description: "Upload files to SFTP server",
-        s: new SftpServer(),
+        factory: () => {
+          // Lazy load SftpServer
+          const { SftpServer } = require("./server/sftp");
+          return new SftpServer();
+        },
       },
     ],
     [
@@ -50,7 +59,11 @@ export class ServerFactory {
         name: "COS",
         icon: "cloud",
         description: "Upload files to COS(Tencent Cloud Object Storage)",
-        s: new COSServer(),
+        factory: () => {
+          // Lazy load COSServer
+          const { COSServer } = require("./server/cos");
+          return new COSServer();
+        },
       },
     ],
   ]);
@@ -67,11 +80,20 @@ export class ServerFactory {
   }
 
   static createServer(type: ServerType): Server | undefined {
+    // Return singleton instance if exists
+    if (this._serverInstances.has(type)) {
+      return this._serverInstances.get(type);
+    }
+
+    // Lazy load and create singleton instance
     const config = this._serverTypeList.get(type);
     if (!config) {
       return undefined;
     }
-    return config.s;
+
+    const instance = config.factory();
+    this._serverInstances.set(type, instance);
+    return instance;
   }
 
   static getServerList(context: vscode.ExtensionContext): string[] {

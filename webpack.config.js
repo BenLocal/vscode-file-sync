@@ -20,11 +20,13 @@ const extensionConfig = {
     libraryTarget: "commonjs2",
   },
   externals: {
-    vscode: "commonjs vscode", // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
-    // modules added here also need to be added in the .vscodeignore file
-    ssh2: "commonjs ssh2",
-    "ssh2-sftp-client": "commonjs ssh2-sftp-client",
-    "cpu-features": "commonjs cpu-features",
+    vscode: "commonjs vscode", // the vscode-module is created on-the-fly and must be excluded
+    // Only native modules that cannot be webpack'ed must be external
+    // ssh2-sftp-client can be bundled, but it depends on ssh2 (native), so we keep it external
+    // All other dependencies (including ali-oss, cos-nodejs-sdk-v5) will be bundled by webpack
+    ssh2: "commonjs ssh2", // Contains native bindings (cpu-features, nan) - cannot be bundled
+    "ssh2-sftp-client": "commonjs ssh2-sftp-client", // Depends on ssh2 (native) - keep external to avoid bundling ssh2 dependencies
+    "cpu-features": "commonjs cpu-features", // Native C++ module - cannot be bundled
   },
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
