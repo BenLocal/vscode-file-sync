@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import { AliyunServer } from "./server/aliyun";
-import { Readable } from "node:stream";
 import { SftpServer } from "./server/sftp";
 import { ProgressFileStream } from "./fileStream";
 import { COSServer } from "./server/cos";

@@ -3,7 +3,7 @@
   "displayName": "vscode-file-sync",
   "description": "vscoe file sync",
   "publisher": "shiben",
-  "version": "0.0.1-alpha.4",
+  "version": "0.0.2-alpha.1",
   "engines": {
     "vscode": "^1.73.0"
   },
@@ -24,7 +24,7 @@
     "url": "https://github.com/BenLocal/vscode-file-sync.git"
   },
   "activationEvents": [
-    "onStartupFinished"
+    "workspaceContains:**/*"
   ],
   "icon": "logo.png",
   "main": "./dist/extension.js",
