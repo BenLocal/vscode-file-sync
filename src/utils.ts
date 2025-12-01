@@ -4,6 +4,15 @@ import { createReadStream } from "node:fs";
 
 
 export class FileSyncUtils {
+  /**
+   * Show an information message that automatically disappears after the specified duration
+   * @param message The message to display
+   * @param duration Duration in milliseconds (default: 3000ms)
+   */
+  static showTemporaryInformationMessage(message: string, duration: number = 3000): void {
+    vscode.window.setStatusBarMessage(`$(check) ${message}`, duration);
+  }
+
   static async getReadableStream(uri: vscode.Uri): Promise<Readable> {
     if (uri.scheme === "file") {
       return createReadStream(uri.fsPath);

@@ -3,7 +3,6 @@ import path from "node:path";
 import { ServerFactory } from "./serverFactory";
 import { UploadHistory, UploadHistoryItem } from "./history";
 import { FileSyncUtils } from "./utils";
-import { PassThrough } from "node:stream";
 import { ProgressFileStream } from "./fileStream";
 
 export async function uploadFile(
@@ -84,15 +83,15 @@ export async function uploadFile(
       }
     );
     const durationSec = ((Date.now() - start) / 1000).toFixed(2);
-    vscode.window.showInformationMessage(
-      `Upload completed: ${fileName}\nSize: ${(stat.size / 1024).toFixed(
+    FileSyncUtils.showTemporaryInformationMessage(
+      `Upload completed: ${fileName} | Size: ${(stat.size / 1024).toFixed(
         2
-      )} KB\nDuration: ${durationSec} s`
+      )} KB | Duration: ${durationSec} s`,
+      3000
     );
   } catch (error) {
     vscode.window.showErrorMessage(
-      `Failed to upload file: ${
-        error instanceof Error ? error.message : String(error)
+      `Failed to upload file: ${error instanceof Error ? error.message : String(error)
       }`
     );
   }

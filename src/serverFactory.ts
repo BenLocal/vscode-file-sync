@@ -5,6 +5,7 @@ export enum ServerType {
   Aliyun = "aliyun",
   Sftp = "sftp",
   COS = "cos",
+  Minio = "minio",
 }
 
 export interface ServerConfig {
@@ -66,6 +67,18 @@ export class ServerFactory {
         },
       },
     ],
+    [
+      ServerType.Minio,
+      {
+        name: "Minio",
+        icon: "cloud",
+        description: "Upload files to Minio",
+        factory: () => {
+          const { MinioServer } = require("./server/minio");
+          return new MinioServer();
+        },
+      },
+    ]
   ]);
 
   static getServerTypeList(): vscode.QuickPickItem[] {

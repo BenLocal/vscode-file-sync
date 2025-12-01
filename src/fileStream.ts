@@ -35,4 +35,8 @@ export class ProgressFileStream {
     stream.pipe(tracked);
     return tracked;
   }
+
+  getSize(): number {
+    return this._fileSize;
+  }
 }

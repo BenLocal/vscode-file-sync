@@ -94,6 +94,7 @@
   "dependencies": {
     "ali-oss": "^6.23.0",
     "cos-nodejs-sdk-v5": "^2.15.4",
+    "minio": "^8.0.6",
     "proxy-agent": "^5.0.0",
     "ssh2-sftp-client": "^10.0.3"
   }

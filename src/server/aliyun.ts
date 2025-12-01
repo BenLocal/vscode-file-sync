@@ -3,6 +3,7 @@ import { Server, ServerConfig } from "../serverFactory";
 import path from "node:path";
 import OSS from "ali-oss";
 import { ProgressFileStream } from "../fileStream";
+import { FileSyncUtils } from "../utils";
 
 const matadataKeys = {
   accessKeyId: "accessKeyId",
@@ -46,14 +47,13 @@ export class AliyunServer implements Server {
       const open = "Open Link";
       const action = await vscode.window.showInformationMessage(
         `File ${uploadFileName} uploaded successfully: ${url}`,
-        { modal: true },
         copy,
         open
       );
 
       if (action === copy) {
         await vscode.env.clipboard.writeText(url);
-        vscode.window.showInformationMessage("Link copied to clipboard.");
+        FileSyncUtils.showTemporaryInformationMessage("Link copied to clipboard.", 3000);
       } else if (action === open) {
         vscode.env.openExternal(vscode.Uri.parse(url));
       }
