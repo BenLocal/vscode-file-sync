@@ -6,7 +6,6 @@ export enum ServerType {
   Sftp = "sftp",
   COS = "cos",
   Minio = "minio",
-  //Samba = "samba",
 }
 
 export interface ServerConfig {
@@ -80,18 +79,6 @@ export class ServerFactory {
         },
       },
     ],
-    // [
-    //   ServerType.Samba,
-    //   {
-    //     name: "SMB",
-    //     icon: "cloud",
-    //     description: "Upload files to SMB server",
-    //     factory: () => {
-    //       const { SMBServer } = require("./server/smb");
-    //       return new SMBServer();
-    //     },
-    //   },
-    // ],
   ]);
 
   static getServerTypeList(): vscode.QuickPickItem[] {

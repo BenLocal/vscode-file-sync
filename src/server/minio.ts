@@ -78,38 +78,46 @@ export class MinioServer implements Server {
       port = portRaw;
     }
     const useSSL = serverConfig.matadata[matadataKeys.useSSL]?.toLowerCase() === "true";
-    const minioClient = new Minio.Client({
-      endPoint: serverConfig.matadata[matadataKeys.endpoint]!,
-      port: port,
-      useSSL: useSSL,
-      accessKey: serverConfig.matadata[matadataKeys.accessKeyId] ?? undefined,
-      secretKey: serverConfig.matadata[matadataKeys.accessKeySecret] ?? undefined,
-    });
 
-    const bucket = serverConfig.matadata[matadataKeys.bucket]!;
-    const stream = await file.getStream();
-    const fileSize = file.getSize();
-    const res = await minioClient.putObject(bucket, uploadFile, stream, fileSize);
-    if (res.etag) {
-      // Generate presigned URL for download (valid for 7 days)
-      const expiry = 7 * 24 * 60 * 60; // 7 days in seconds
-      const url = await minioClient.presignedGetObject(bucket, uploadFile, expiry);
+    let minioClient: Minio.Client | null = null;
+    try {
+      minioClient = new Minio.Client({
+        endPoint: serverConfig.matadata[matadataKeys.endpoint]!,
+        port: port,
+        useSSL: useSSL,
+        accessKey: serverConfig.matadata[matadataKeys.accessKeyId] ?? undefined,
+        secretKey: serverConfig.matadata[matadataKeys.accessKeySecret] ?? undefined,
+      });
 
-      const copy = "Copy Link";
-      const open = "Open Link";
-      const action = await vscode.window.showInformationMessage(
-        `File ${uploadFile} uploaded successfully: ${url}`,
-        copy,
-        open
-      );
-      if (action === copy) {
-        await vscode.env.clipboard.writeText(url);
-        FileSyncUtils.showTemporaryInformationMessage("Link copied to clipboard.", 3000);
-      } else if (action === open) {
-        vscode.env.openExternal(vscode.Uri.parse(url));
+      const bucket = serverConfig.matadata[matadataKeys.bucket]!;
+      const stream = await file.getStream();
+      const fileSize = file.getSize();
+      const res = await minioClient.putObject(bucket, uploadFile, stream, fileSize);
+      if (res.etag) {
+        // Generate presigned URL for download (valid for 7 days)
+        const expiry = 7 * 24 * 60 * 60; // 7 days in seconds
+        const url = await minioClient.presignedGetObject(bucket, uploadFile, expiry);
+
+        const copy = "Copy Link";
+        const open = "Open Link";
+        const action = await vscode.window.showInformationMessage(
+          `File ${uploadFile} uploaded successfully: ${url}`,
+          copy,
+          open
+        );
+        if (action === copy) {
+          await vscode.env.clipboard.writeText(url);
+          FileSyncUtils.showTemporaryInformationMessage("Link copied to clipboard.", 3000);
+        } else if (action === open) {
+          vscode.env.openExternal(vscode.Uri.parse(url));
+        }
+      } else {
+        throw new Error("Failed to upload file");
       }
-    } else {
-      throw new Error("Failed to upload file");
+    } finally {
+      if (minioClient) {
+        minioClient = null;
+      }
     }
   }
 }

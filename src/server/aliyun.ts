@@ -36,26 +36,33 @@ export class AliyunServer implements Server {
     if (endpoint) {
       options.endpoint = endpoint;
     }
-    const oss = new OSS(options);
 
-    const result = await oss.putStream(uploadFile, await file.getStream());
+    let oss: OSS | null = null;
+    try {
+      oss = new OSS(options);
+      const result = await oss.putStream(uploadFile, await file.getStream());
 
-    const url = (result as { url?: string })?.url;
-    const uploadFileName = path.basename(uploadFile);
-    if (url) {
-      const copy = "Copy Link";
-      const open = "Open Link";
-      const action = await vscode.window.showInformationMessage(
-        `File ${uploadFileName} uploaded successfully: ${url}`,
-        copy,
-        open
-      );
+      const url = (result as { url?: string })?.url;
+      const uploadFileName = path.basename(uploadFile);
+      if (url) {
+        const copy = "Copy Link";
+        const open = "Open Link";
+        const action = await vscode.window.showInformationMessage(
+          `File ${uploadFileName} uploaded successfully: ${url}`,
+          copy,
+          open
+        );
 
-      if (action === copy) {
-        await vscode.env.clipboard.writeText(url);
-        FileSyncUtils.showTemporaryInformationMessage("Link copied to clipboard.", 3000);
-      } else if (action === open) {
-        vscode.env.openExternal(vscode.Uri.parse(url));
+        if (action === copy) {
+          await vscode.env.clipboard.writeText(url);
+          FileSyncUtils.showTemporaryInformationMessage("Link copied to clipboard.", 3000);
+        } else if (action === open) {
+          vscode.env.openExternal(vscode.Uri.parse(url));
+        }
+      }
+    } finally {
+      if (oss) {
+        oss = null;
       }
     }
   }
