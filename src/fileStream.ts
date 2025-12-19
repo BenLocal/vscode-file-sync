@@ -39,4 +39,8 @@ export class ProgressFileStream {
   getSize(): number {
     return this._fileSize;
   }
+
+  getPath(): string {
+    return this._uri.fsPath;
+  }
 }
